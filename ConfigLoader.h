@@ -65,7 +65,7 @@ public:
             config.package_name = packageElem->GetText();
         }
         else {
-           cerr << "ОШИБКА: Неверное значение package_name" <<endl;
+           cerr << "ОШИБКА: Отсутствует обязательное поле package_name" << endl;
            return false;
         }
 
@@ -75,8 +75,8 @@ public:
             config.repository_url = repoElem->GetText();
         }
         else {
-           cerr << "ОШИБКА: Неверное значение repository_url" <<endl;
-           return false;
+            cerr << "ОШИБКА: Отсутствует обязательное поле repository_url" << endl;
+            return false;
         }
 
         // test_repository_mode
@@ -85,8 +85,8 @@ public:
             config.test_repository_mode = stringToBool(testElem->GetText());
         }
         else {
-           cerr << "ОШИБКА: Неверное значение test_repository_mode" <<endl;
-           return false;
+            cerr << "ОШИБКА: Отсутствует обязательное поле test_repository_mode" << endl;
+            return false;
         }
 
         // output_filename
@@ -95,7 +95,7 @@ public:
             config.output_filename = outputElem->GetText();
         }
         else {
-           cerr << "ОШИБКА: Неверное значение output_filename" <<endl;
+            cerr << "ОШИБКА: Отсутствует обязательное поле output_filename" <<endl;
            return false;
         }
 
