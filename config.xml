@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <config>
-  <package_name>example-package</package_name>
-  <repository_url>https://pypi.org/simple/</repository_url>
+  <package_name>base64</package_name>
+  <repository_url>https://crates.io/api/v1/crates/base64</repository_url>
   <test_repository_mode>false</test_repository_mode>
   <output_filename>dependency_graph.png</output_filename>
   <package_filter>test</package_filter>

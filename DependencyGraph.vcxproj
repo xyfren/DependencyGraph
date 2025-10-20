@@ -129,12 +129,14 @@
   <ItemGroup>
     <ClCompile Include="ConfigLoader.cpp" />
     <ClCompile Include="DependencyGraph.cpp" />
+    <ClCompile Include="DependencyParser.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Xml Include="config.xml" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ConfigLoader.h" />
+    <ClInclude Include="DependencyParser.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
