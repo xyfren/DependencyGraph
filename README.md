@@ -127,3 +127,187 @@ strum
 ![Сбор данных о зависимостях](screenshots/2.png)
 
 *Рис. 2: Пример вывода списка зависимостей пакета base64*
+
+
+# Основные операции
+
+
+## Выполненные работы
+
+### 1. Реализация DFS с рекурсией
+
+**Задача:** Заменить алгоритм BFS на DFS с рекурсивным обходом графа зависимостей.
+
+**Реализация:**
+- Создан метод `getTransitiveDependenciesDFS()` в классе `DependencyParser`
+- Алгоритм использует рекурсивный обход в глубину
+- Добавлен параметр `depth` для контроля глубины рекурсии
+
+```cpp
+void DependencyParser::getTransitiveDependenciesDFS(const string& packageName, 
+                                                  vector<string>& result, 
+                                                  unordered_set<string>& visited, 
+                                                  string currentPath,
+                                                  const vector<string>& filters,
+                                                  int depth)
+```
+
+### 2. Обработка циклических зависимостей
+
+**Механизм обнаружения:**
+- Используется множество `visited` для отслеживания посещенных пакетов
+- При обнаружении цикла выводится предупреждающее сообщение
+- Рекурсия прерывается для данного пути
+
+```cpp
+if (visited.find(packageName) != visited.end()) {
+    cout << "Обнаружена циклическая зависимость: " << packageName << " в пути " << currentPath << endl;
+    return;
+}
+```
+
+### 3. Защита от бесконечной рекурсии
+
+**Реализация:**
+- Установлено ограничение максимальной глубины рекурсии (`MAX_DEPTH = 10`)
+- При превышении лимита выводится предупреждение
+
+```cpp
+const int MAX_DEPTH = 10;
+if (depth > MAX_DEPTH) {
+    cout << "WARNING: Превышена максимальная глубина рекурсии (" << MAX_DEPTH << ")" << endl;
+    return;
+}
+```
+
+### 4. Фильтрация пакетов
+
+**Реализация:**
+- Фильтрация выполняется на основе подстроки, заданной пользователем
+- Пакеты, содержащие фильтруемую подстроку, исключаются из анализа
+
+```cpp
+bool filtered = false;
+for (const string& filter : filters) {
+    if (dep.find(filter) != string::npos) {
+        filtered = true;
+        break;
+    }
+}
+if (filtered) continue;
+```
+
+### 5. Режим тестового репозитория
+
+**Особенности реализации:**
+- Эмуляция простого графа зависимостей с пакетами A, B, C, D, E
+- Структура графа: A→B→C→E, A→C, B→D
+- В тестовом режиме URL пакета совпадает с его именем
+
+```cpp
+if (m_testRepositoryMode) {
+    if (packageUrl.find("A") != string::npos) return R"({"dependencies": ["B", "C"]})";
+    if (packageUrl.find("B") != string::npos) return R"({"dependencies": ["C", "D"]})";
+    // ... и т.д.
+}
+```
+
+### 6. Рефакторинг класса DependencyParser
+
+**Изменения в конструкторе:**
+```cpp
+// Было:
+DependencyParser(string repositoryUrl);
+
+// Стало:
+DependencyParser(string repositoryUrl, bool testRepositoryMode);
+```
+
+**Удаленные параметры:**
+- Параметр `packageName` удален из конструктора
+- Теперь `packageName` передается в методы как аргумент
+
+## Архитектурные изменения
+
+### Класс DependencyParser
+- **Поля:** `m_repositoryUrl`, `m_testRepositoryMode`, `m_dependencyCache`
+- **Методы:** 
+  - `getPackageDependencies()` - получение прямых зависимостей
+  - `getPackageDependenciesTransitive()` - получение транзитивных зависимостей
+  - `getTransitiveDependenciesDFS()` - рекурсивный DFS обход
+
+### Взаимодействие компонентов
+```
+DependencyGraph.cpp → ConfigLoader → DependencyParser
+       ↓                ↓                ↓
+   main()          Загрузка config   Анализ зависимостей
+```
+
+## Тестирование
+
+### Сценарий 1: Нормальная работа
+**Входные данные:**
+- Пакет: "A"
+- Фильтр: отсутствует
+
+**Результат:**
+```
+A/B
+A/B/C
+A/B/C/E
+A/B/D
+A/C
+A/C/E
+```
+
+### Сценарий 2: Фильтрация пакетов
+**Входные данные:**
+- Пакет: "A" 
+- Фильтр: "C"
+
+**Результат:**
+```
+A/B
+A/B/D
+```
+
+### Сценарий 3: Обнаружение циклов
+**Тестовый граф:** A→B→A (цикл)
+
+**Результат:**
+```
+Обнаружена циклическая зависимость: A в пути A/B/A
+```
+
+## Обработка ошибок
+
+1. **Циклические зависимости** - обнаружение и корректное завершение обхода
+2. **Превышение глубины рекурсии** - защита от переполнения стека
+3. **Ошибки парсинга JSON** - перехват исключений и вывод сообщений
+4. **Ошибки сетевых запросов** - обработка ошибок CURL
+
+## Соответствие требованиям этапа
+
+- ✅ Реализован DFS с рекурсией
+- ✅ Фильтрация пакетов по подстроке
+- ✅ Обработка циклических зависимостей  
+- ✅ Режим тестового репозитория
+- ✅ Все параметры (кроме фильтра) передаются в DependencyParser
+- ✅ Сохранение результатов в репозиторий
+
+## Примеры работы
+
+Пример xml-файла:
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<config>
+  <package_name>serde</package_name>
+  <repository_url>https://crates.io/api/v1/crates/</repository_url>
+  <test_repository_mode>false</test_repository_mode>
+  <output_filename>dependency_graph.png</output_filename>
+  <package_filter></package_filter>
+</config>
+```
+![Вывод транзитивных зависимостей](screenshots/3.png)
+
+*Рис. 3: Пример вывода списка транзитивных зависимостей пакета serde*

@@ -12,7 +12,7 @@ private:
     struct Config {
        string package_name;
        string repository_url;
-       bool test_repository_mode;
+       bool test_repository_mode = false;
        string output_filename;
        string package_filter;
     };
@@ -56,8 +56,7 @@ public:
             return false;
         }
 
-        // Парсинг всех полей
-        //bool hasErrors = false;
+        // Парсинг
 
         // package_name
         tinyxml2::XMLElement* packageElem = root->FirstChildElement("package_name");
@@ -105,7 +104,7 @@ public:
             config.package_filter = filterElem->GetText();
         }
         else {
-            config.package_filter = ""; // пустая строка если нет фильтра
+            config.package_filter = ""; 
         }
 
         // Вывод параметров (требование этапа 1)

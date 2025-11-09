@@ -1,6 +1,8 @@
 #pragma once
 #include <iostream>
 #include <vector>
+#include <unordered_set>
+#include <unordered_map>
 #include <curl/curl.h>
 #include <nlohmann/json.hpp>
 
@@ -33,12 +35,25 @@ public:
 
 class DependencyParser
 {
+    string m_repositoryUrl;
+    bool m_testRepositoryMode;
+    unordered_map<string, vector<string>> m_dependencyCache;
 
-	static size_t writeCallback(void* contents, size_t size, size_t nmemb, string* data);
-	string getJsonStr(string url);
-    vector<string> parsePackageMeta(string url);
+    static size_t writeCallback(void* contents, size_t size, size_t nmemb, string* data);
+    string getMeta(string packageUrl);
+    vector<string> parsePackageMeta(string packageUrl);
+    vector<string> parse(string packageUrl);
 
-	public:
-		vector<string> parse(string url);
+    // Рекурсивный DFS для транзитивных зависимостей
+    void getTransitiveDependenciesDFS(const string& packageName,
+        vector<string>& result,
+        unordered_set<string>& visited,
+        string currentPath,
+        const vector<string>& filters,
+        int depth);
+
+public:
+    DependencyParser(string repositoryUrl, bool testRepositoryMode);
+    vector<string> getPackageDependencies(string packageName);
+    vector<string> getPackageDependenciesTransitive(string packageName, vector<string> filters = {});
 };
-

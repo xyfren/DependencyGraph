@@ -1,0 +1,181 @@
+<h1 id="dependencygraph-26-вариант">DependencyGraph (26 ВАРИАНТ)</h1>
+<h1 id="минимальный-прототип-с-конфигурацией">Минимальный прототип с конфигурацией</h1>
+<h2 id="цель-этапа">Цель этапа</h2>
+<p>Создание минимального CLI-приложения для визуализации графа зависимостей с настраиваемой конфигурацией через XML-файл.</p>
+<h2 id="архитектура-решения">Архитектура решения</h2>
+<h3 id="основной-класс">Основной класс</h3>
+<p><strong>ConfigLoader</strong> - класс предназначенный для загрузки конфигурации: - Загрузка и парсинг XML-конфигурации - Валидация параметров - Обработка ошибок - Вывод параметров в требуемом формате</p>
+<h2 id="реализованная-функциональность">Реализованная функциональность</h2>
+<h3 id="конфигурационные-параметры">Конфигурационные параметры</h3>
+<p>Все требуемые параметры поддерживаются:</p>
+<table>
+<thead>
+<tr class="header">
+<th>Параметр</th>
+<th>Тип</th>
+<th>Обязательный</th>
+<th>Описание</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>package_name</td>
+<td>string</td>
+<td>Да</td>
+<td>Имя анализируемого пакета</td>
+</tr>
+<tr class="even">
+<td>repository_url</td>
+<td>string</td>
+<td>Да</td>
+<td>URL репозитория или путь к файлу</td>
+</tr>
+<tr class="odd">
+<td>test_repository_mode</td>
+<td>boolean</td>
+<td>Да</td>
+<td>Режим работы с тестовым репозиторием</td>
+</tr>
+<tr class="even">
+<td>output_filename</td>
+<td>string</td>
+<td>Да</td>
+<td>Имя файла для изображения графа</td>
+</tr>
+<tr class="odd">
+<td>package_filter</td>
+<td>string</td>
+<td>Нет</td>
+<td>Подстрока для фильтрации пакетов</td>
+</tr>
+</tbody>
+</table>
+<h3 id="формат-конфигурационного-файла">Формат конфигурационного файла</h3>
+<div class="sourceCode" id="cb1"><pre class="sourceCode xml"><code class="sourceCode xml"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">&lt;?xml</span> version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;<span class="kw">?&gt;</span></a>
+<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw">&lt;config&gt;</span></a>
+<a class="sourceLine" id="cb1-3" data-line-number="3">    <span class="kw">&lt;package_name&gt;</span>example-package<span class="kw">&lt;/package_name&gt;</span></a>
+<a class="sourceLine" id="cb1-4" data-line-number="4">    <span class="kw">&lt;repository_url&gt;</span>https://pypi.org/simple/<span class="kw">&lt;/repository_url&gt;</span></a>
+<a class="sourceLine" id="cb1-5" data-line-number="5">    <span class="kw">&lt;test_repository_mode&gt;</span>false<span class="kw">&lt;/test_repository_mode&gt;</span></a>
+<a class="sourceLine" id="cb1-6" data-line-number="6">    <span class="kw">&lt;output_filename&gt;</span>dependency_graph.png<span class="kw">&lt;/output_filename&gt;</span></a>
+<a class="sourceLine" id="cb1-7" data-line-number="7">    <span class="kw">&lt;package_filter&gt;</span>test<span class="kw">&lt;/package_filter&gt;</span></a>
+<a class="sourceLine" id="cb1-8" data-line-number="8"><span class="kw">&lt;/config&gt;</span></a></code></pre></div>
+<h3 id="парсинг-xml">Парсинг XML</h3>
+<ul>
+<li>Используется библиотека TinyXML2 для:</li>
+<li>Загрузки XML-файла</li>
+<li>Извлечения значений тегов</li>
+<li>Проверки наличия обязательных полей ### Вывод параметров При успешной загрузке выводится список всех параметров в формате ключ-значение: bash</li>
+</ul>
+<pre><code>=== Параметры конфигурации ===
+package_name: example-package
+repository_url: https://pypi.org/simple/
+test_repository_mode: false
+output_filename: dependency_graph.png
+package_filter: test
+=================================
+Конфигурация успешно загружена!</code></pre>
+<h3 id="обработка-ошибок">Обработка ошибок</h3>
+<table>
+<colgroup>
+<col style="width: 28%" />
+<col style="width: 50%" />
+<col style="width: 21%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Тип ошибки</th>
+<th>Сообщение об ошибке</th>
+<th>Причина</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Файл не найден</td>
+<td><code>ОШИБКА: Не удалось загрузить файл:</code></td>
+<td>Указанный файл конфигурации не существует</td>
+</tr>
+<tr class="even">
+<td>Отсутствует корневой элемент</td>
+<td><code>&quot;ОШИБКА: Ошибка отстутсвует корневой элемент</code></td>
+<td>В XML файле отсутствует корневой тег <code>&lt;config&gt;</code></td>
+</tr>
+<tr class="odd">
+<td>Отсутствует обязательное поле</td>
+<td><code>ОШИБКА: Отсутствует обязательное поле package_name</code></td>
+<td>Обязательный параметр отсутствует или пустой</td>
+</tr>
+</tbody>
+</table>
+<h2 id="примеры-работы">Примеры работы</h2>
+<figure>
+<img src="screenshots/1.png" alt="Минимальный прототип с конфигурацией" /><figcaption>Минимальный прототип с конфигурацией</figcaption>
+</figure>
+<p><em>Рис. 1: Пример вывода конфигурации</em></p>
+<h1 id="сбор-данных">Сбор данных</h1>
+<h2 id="цель-этапа-1">Цель этапа</h2>
+<p>Реализовать основную логику получения данных о зависимостях для их дальнейшего анализа и визуализации без использования менеджеров пакетов и сторонних библиотек для получения информации о зависимостях пакетов.</p>
+<h2 id="архитектура-решения-1">Архитектура решения</h2>
+<h3 id="основные-классы">Основные классы</h3>
+<p><strong>DependencyParser</strong> - класс для получения и обработки данных о зависимостях: - Выполнение HTTP-запросов к API crates.io - Парсинг JSON-ответов - Извлечение информации о зависимостях - Обработка ошибок сетевых запросов и парсинга</p>
+<p><strong>CurlParsingError</strong> - класс исключений для ошибок CURL</p>
+<p><strong>JsonParsingError</strong> - класс исключений для ошибок парсинга JSON</p>
+<h2 id="реализованная-функциональность-1">Реализованная функциональность</h2>
+<h3 id="получение-данных-о-зависимостях">Получение данных о зависимостях</h3>
+<ul>
+<li>Получение JSON по URL</li>
+<li>Парсинг метаданных пакета</li>
+<li>Получение списка зависимостей</li>
+<li>Обработка HTTP-ответов</li>
+</ul>
+<h3 id="формат-работы-с-api-crates.io">Формат работы с API crates.io</h3>
+<ol type="1">
+<li><strong>Запрос метаданных пакета (для извлечения версии)</strong>: <code>https://crates.io/api/v1/crates/{package_name}</code></li>
+<li><strong>Запрос зависимостей</strong>: <code>https://crates.io/api/v1/crates/{package_name}/{version}/dependencies</code></li>
+</ol>
+<h3 id="вывод-зависимостей">Вывод зависимостей</h3>
+<p>При успешном получении данных выводится список прямых зависимостей: bach</p>
+<pre><code>Зависимости пакета base64:
+clap
+criterion
+once_cell
+rand
+rstest
+rstest_reuse
+strum</code></pre>
+<h3 id="обработка-ошибок-1">Обработка ошибок</h3>
+<table>
+<thead>
+<tr class="header">
+<th>Тип ошибки</th>
+<th>Класс исключения</th>
+<th>Сообщение об ошибке</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Ошибка CURL</td>
+<td><code>CurlParsingError</code></td>
+<td><code>Ошибка Curl: {детали ошибки}</code></td>
+</tr>
+<tr class="even">
+<td>Ошибка парсинга JSON</td>
+<td><code>JsonParsingError</code></td>
+<td><code>JSON ошибка разбора: {детали ошибки}</code></td>
+</tr>
+<tr class="odd">
+<td>Пакет не найден</td>
+<td><code>JsonParsingError</code></td>
+<td><code>JSON ошибка разбора: пакет не найден</code></td>
+</tr>
+<tr class="even">
+<td>Отсутствуют зависимости</td>
+<td>-</td>
+<td><code>Зависимостей не найдено:(</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="примеры-работы-1">Примеры работы</h2>
+<figure>
+<img src="screenshots/2.png" alt="Сбор данных о зависимостях" /><figcaption>Сбор данных о зависимостях</figcaption>
+</figure>
+<p><em>Рис. 2: Пример вывода списка зависимостей пакета base64</em></p>

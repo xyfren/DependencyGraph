@@ -1,5 +1,5 @@
 ﻿#include <iostream>
-#include <tinyxml.h>
+#include <tinyxml2.h>
 #include <curl/curl.h>
 #include <nlohmann/json.hpp>
 #include "ConfigLoader.h"
@@ -19,17 +19,29 @@ int main()
         return 1;
     }
 
-    DependencyParser dp;
+    string packageName = loader.getPackageName();
+    string repositoryUrl = loader.getRepositoryUrl();
+    bool testRepositoryMode = loader.getTestRepositoryMode();
+    string packageFilter = loader.getPackageFilter();
 
-    vector<string> deps = dp.parse(loader.getRepositoryUrl());
+    DependencyParser dp(repositoryUrl, testRepositoryMode);
+
+    vector<string> filters;
+    if (!packageFilter.empty()) {
+        filters.push_back(packageFilter);
+    }
+
+    vector<string> deps = dp.getPackageDependenciesTransitive(packageName, filters);
 
     if (deps.empty()) {
         cout << "Зависимостей не найдено:(" << endl;
         return 0;
     }
-    cout << "Зависимости пакета " << loader.getPackageName() << ":" << endl;
+
+    cout << "Транзитивные зависимости пакета " << packageName << ":" << endl;
     for (string& dep : deps) {
         cout << dep << endl;
     }
+
     return 0;
 }
